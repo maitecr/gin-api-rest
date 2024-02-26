@@ -68,6 +68,13 @@ func EditAluno(c *gin.Context) {
 	id := c.Params.ByName(("id"))
 	database.DB.First(&aluno, id)
 
+	if aluno.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Aluno não encontrado",
+		})
+		return
+	}
+
 	if err := c.ShouldBindJSON(&aluno); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error()})
@@ -98,4 +105,17 @@ func SearchByCpf(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, aluno)
+}
+
+func HomePage(c *gin.Context) {
+	var alunos []models.Aluno
+	database.DB.Find(&alunos)
+
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"alunos": alunos,
+	})
+}
+
+func NotFound(c *gin.Context) {
+	c.HTML(http.StatusNotFound, "404.html", nil)
 }
